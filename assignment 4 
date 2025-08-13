@@ -1,0 +1,39 @@
+#include <iostream>
+using namespace std;
+
+void reverseArray(int arr[], int size) {
+    for (int i = 0; i < size / 2; i++) {
+        swap(arr[i], arr[size - i - 1]);
+    }
+}
+
+void printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+}
+
+void multiplyMatrices(int a[2][3], int b[3][2], int c[2][2]) {
+    for (int row = 0; row < 2; row++) {
+        for (int col = 0; col < 2; col++) {
+            c[row][col] = 0;
+            for (int k = 0; k < 3; k++) {
+                c[row][col] += a[row][k] * b[k][col];
+            }
+        }
+    }
+}
+
+void printMatrix(int matrix[2][2]) {
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+void transposeMatrix(int input[2][3], int output[3][2]) {
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 3; j++) {

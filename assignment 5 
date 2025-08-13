@@ -1,0 +1,17 @@
+#include <iostream>
+using namespace std;
+
+void calculateSums(int arr[3][3]) {
+    int sum = 0;
+
+    // Row sums
+    for (int row = 0; row < 3; row++) {
+        sum = 0;
+        for (int col = 0; col < 3; col++) {
+            sum += arr[row][col];
+        }
+        cout << "Sum of row " << row + 1 << ": " << sum << endl;
+    }
+
+    // Column sums
+    f

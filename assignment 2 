@@ -1,0 +1,61 @@
+#include <iostream>
+using namespace std;
+
+int arr[20];
+int size = 0;
+
+void inputArray() {
+    cout << "Enter total number of elements (max 20): ";
+    cin >> size;
+
+    cout << "Input " << size << " elements:\n";
+    for (int i = 0; i < size; i++) {
+        cin >> arr[i];
+    }
+}
+
+void displayArray() {
+    cout << "Array elements: ";
+    for (int i = 0; i < size; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+}
+
+void deleteAtPosition(int pos) {
+    if (pos < 0 || pos >= size) {
+        cout << "Error: Position out of range.\n";
+        return;
+    }
+
+    for (int i = pos; i < size - 1; i++) {
+        arr[i] = arr[i + 1];
+    }
+
+    size--;
+}
+
+void removeDuplicates() {
+    for (int i = 0; i < size; i++) {
+        for (int j = i + 1; j < size; j++) {
+            if (arr[i] == arr[j]) {
+                deleteAtPosition(j);
+                j--; // Adjust index after deletion
+            }
+        }
+    }
+}
+
+int main() {
+    inputArray();
+
+    cout << "\nOriginal array:\n";
+    displayArray();
+
+    removeDuplicates();
+
+    cout << "\nArray after removing duplicates:\n";
+    displayArray();
+
+    return 0;
+}
