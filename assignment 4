@@ -37,3 +37,28 @@ void printMatrix(int matrix[2][2]) {
 void transposeMatrix(int input[2][3], int output[3][2]) {
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 3; j++) {
+            d[j][i] = arr[i][j];
+        }
+    }
+}
+
+int main(){
+
+    int arr[5] = {1, 2, 3, 4, 5};
+    int a[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int b[3][2] = {{7, 8}, {9, 10}, {11, 12}};
+    int c[2][2];
+    int d[3][2];
+    reverse(arr, 5);
+    cout << "Reversed array: ";
+    print_array(arr, 5);
+    cout << endl;
+    matrix_multiply(a, b, c);
+    cout << "Matrix multiplication result: " << endl;
+    print_matrix(c);
+    cout << endl;
+    transpose(a, d);
+    cout << "Transposed matrix: " << endl;
+    print_matrix(d);
+    cout << endl;
+}
