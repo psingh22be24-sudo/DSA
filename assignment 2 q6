@@ -1,0 +1,208 @@
+
+
+#include <iostream>
+using namespace std;
+
+struct Term {
+    int row;
+    int col;
+    int value;
+};
+
+class SparseMatrix {
+public:
+    int rows, cols, numTerms;
+    Term *terms;
+
+    SparseMatrix(int r, int c, int t) {
+        rows = r;
+        cols = c;
+        numTerms = t;
+        terms = new Term[numTerms];
+    }
+
+    ~SparseMatrix() {
+        delete[] terms;
+    }
+
+    
+    void input() {
+        cout << "Enter non-zero elements (row, column, value):\n";
+        for (int i = 0; i < numTerms; i++) {
+            cin >> terms[i].row >> terms[i].col >> terms[i].value;
+        }
+    }
+
+   
+    void display() {
+        cout << "Row\tCol\tValue\n";
+        for (int i = 0; i < numTerms; i++) {
+            cout << terms[i].row << "\t" << terms[i].col << "\t" << terms[i].value << "\n";
+        }
+    }
+
+    
+    SparseMatrix transpose() {
+        SparseMatrix trans(cols, rows, numTerms);
+        int *count = new int[cols]();  
+        int *index = new int[cols]();
+
+       
+        for (int i = 0; i < numTerms; i++)
+            count[terms[i].col]++;
+
+        
+        index[0] = 0;
+        for (int i = 1; i < cols; i++)
+            index[i] = index[i - 1] + count[i - 1];
+
+        for (int i = 0; i < numTerms; i++) {
+            int col = terms[i].col;
+            int pos = index[col];
+            trans.terms[pos].row = terms[i].col;
+            trans.terms[pos].col = terms[i].row;
+            trans.terms[pos].value = terms[i].value;
+            index[col]++;
+        }
+
+        delete[] count;
+        delete[] index;
+
+        return trans;
+    }
+
+    
+    SparseMatrix add(SparseMatrix &b) {
+        if (rows != b.rows || cols != b.cols) {
+            cout << "Matrices dimensions mismatch for addition.\n";
+            return SparseMatrix(0,0,0);
+        }
+
+        Term *sumTerms = new Term[numTerms + b.numTerms];
+        int i = 0, j = 0, k = 0;
+
+        while (i < numTerms && j < b.numTerms) {
+            if (terms[i].row < b.terms[j].row ||
+               (terms[i].row == b.terms[j].row && terms[i].col < b.terms[j].col)) {
+                sumTerms[k++] = terms[i++];
+            } else if (b.terms[j].row < terms[i].row ||
+                      (b.terms[j].row == terms[i].row && b.terms[j].col < terms[i].col)) {
+                sumTerms[k++] = b.terms[j++];
+            } else {
+                int addedValue = terms[i].value + b.terms[j].value;
+                if (addedValue != 0) {
+                    sumTerms[k] = terms[i];
+                    sumTerms[k++].value = addedValue;
+                }
+                i++; j++;
+            }
+        }
+
+        while (i < numTerms) sumTerms[k++] = terms[i++];
+        while (j < b.numTerms) sumTerms[k++] = b.terms[j++];
+
+        SparseMatrix sum(rows, cols, k);
+        for (int idx = 0; idx < k; idx++) {
+            sum.terms[idx] = sumTerms[idx];
+        }
+        delete[] sumTerms;
+        return sum;
+    }
+
+    
+    SparseMatrix multiply(SparseMatrix &b) {
+        if (cols != b.rows) {
+            cout << "Matrices dimensions mismatch for multiplication.\n";
+            return SparseMatrix(0,0,0);
+        }
+
+        
+        SparseMatrix bT = b.transpose();
+
+        Term *prodTerms = new Term[numTerms * b.numTerms]; // max possible terms
+        int k = 0;
+
+        for (int i = 0; i < numTerms;) {
+            int r = terms[i].row;
+            
+            int rowStart = i;
+            int rowEnd = i;
+            while (rowEnd < numTerms && terms[rowEnd].row == r) rowEnd++;
+            
+            for (int j = 0; j < bT.numTerms;) {
+                int c = bT.terms[j].row;
+               
+                int colStart = j;
+                int colEnd = j;
+                while (colEnd < bT.numTerms && bT.terms[colEnd].row == c) colEnd++;
+
+               
+                int sum = 0;
+                int p = rowStart, q = colStart;
+                while (p < rowEnd && q < colEnd) {
+                    if (terms[p].col < bT.terms[q].col)
+                        p++;
+                    else if (terms[p].col > bT.terms[q].col)
+                        q++;
+                    else {
+                        sum += terms[p].value * bT.terms[q].value;
+                        p++; q++;
+                    }
+                }
+
+                if (sum != 0) {
+                    prodTerms[k].row = r;
+                    prodTerms[k].col = c;
+                    prodTerms[k].value = sum;
+                    k++;
+                }
+                j = colEnd;
+            }
+            i = rowEnd;
+        }
+
+        SparseMatrix product(rows, b.cols, k);
+        for (int idx = 0; idx < k; idx++) {
+            product.terms[idx] = prodTerms[idx];
+        }
+        delete[] prodTerms;
+        return product;
+    }
+};
+
+int main() {
+    int r1, c1, t1;
+    cout << "Enter rows, cols and number of non-zero terms for Matrix 1: ";
+    cin >> r1 >> c1 >> t1;
+    SparseMatrix A(r1, c1, t1);
+    A.input();
+
+    int r2, c2, t2;
+    cout << "Enter rows, cols and number of non-zero terms for Matrix 2: ";
+    cin >> r2 >> c2 >> t2;
+    SparseMatrix B(r2, c2, t2);
+    B.input();
+
+    cout << "\nMatrix A (triplet form):\n";
+    A.display();
+
+    cout << "\nMatrix B (triplet form):\n";
+    B.display();
+
+    // Transpose A
+    cout << "\nTranspose of Matrix A:\n";
+    SparseMatrix At = A.transpose();
+    At.display();
+
+    // Add A + B
+    cout << "\nAddition of Matrix A and B:\n";
+    SparseMatrix sum = A.add(B);
+    sum.display();
+
+    // Multiply A * B
+    cout << "\nMultiplication of Matrix A and B:\n";
+    SparseMatrix product = A.multiply(B);
+    product.display();
+
+    return 0;
+}
