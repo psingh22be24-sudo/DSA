@@ -1,0 +1,49 @@
+
+
+
+
+#include <iostream>
+using namespace std;
+
+class DiagonalMatrix {
+    int *A;
+    int n;
+public:
+    DiagonalMatrix(int size) {
+        n = size;
+        A = new int[n];
+    }
+
+    void set(int i, int j, int x) {
+        if (i == j)
+            A[i - 1] = x;  
+    }
+
+    int get(int i, int j) {
+        if (i == j)
+            return A[i - 1];
+        else
+            return 0;
+    }
+
+    ~DiagonalMatrix() {
+        delete[] A;
+    }
+};
+
+int main() {
+    int n = 4;
+    DiagonalMatrix dm(n);
+    dm.set(1,1,5);
+    dm.set(2,2,8);
+    dm.set(3,3,10);
+    dm.set(4,4,15);
+
+    for (int i=1; i<=n; i++) {
+        for (int j=1; j<=n; j++) {
+            cout << dm.get(i,j) << " ";
+        }
+        cout << endl;
+    }
+    return 0;
+}
