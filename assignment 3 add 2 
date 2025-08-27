@@ -1,0 +1,83 @@
+
+#include <iostream>
+#include <stack>
+using namespace std;
+
+class MinStack {
+    stack<long long> s;  
+    long long minEle;
+
+public:
+    MinStack() {}
+
+    void push(int x) {
+        if (s.empty()) {
+            s.push(x);
+            minEle = x;
+        } else {
+            if (x >= minEle) {
+                s.push(x);
+            } else {
+               
+                s.push(2LL * x - minEle);
+                minEle = x;
+            }
+        }
+    }
+
+    void pop() {
+        if (s.empty()) {
+            cout << "Stack is empty\n";
+            return;
+        }
+
+        long long t = s.top();
+        s.pop();
+
+        if (t < minEle) {
+          
+            minEle = 2 * minEle - t;
+        }
+    }
+
+    int top() {
+        if (s.empty()) {
+            cout << "Stack is empty\n";
+            return -1;
+        }
+
+        long long t = s.top();
+
+        if (t >= minEle)
+            return (int)t;
+        else
+            return (int)minEle;
+    }
+
+    int getMin() {
+        if (s.empty()) {
+            cout << "Stack is empty\n";
+            return -1;
+        }
+        return (int)minEle;
+    }
+};
+
+int main() {
+    MinStack ms;
+
+    ms.push(3);
+    ms.push(5);
+    cout << "Min: " << ms.getMin() << "\n"; 
+    ms.push(2);
+    ms.push(1);
+    cout << "Min: " << ms.getMin() << "\n";  
+    cout << "Top: " << ms.top() << "\n";    
+    ms.pop();
+    cout << "Min: " << ms.getMin() << "\n"; 
+    ms.pop();
+    cout << "Top: " << ms.top() << "\n";     
+    cout << "Min: " << ms.getMin() << "\n";  
+
+    return 0;
+}

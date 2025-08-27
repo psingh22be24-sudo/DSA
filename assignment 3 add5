@@ -1,0 +1,37 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+using namespace std;
+
+bool isStackPermutation(const vector<int>& A, const vector<int>& B) {
+    if (A.size() != B.size()) return false;
+
+    stack<int> S;
+    int i = 0, j = 0;
+    int n = A.size();
+
+    while (i < n) {
+        S.push(A[i++]);
+
+        
+        while (!S.empty() && S.top() == B[j]) {
+            S.pop();
+            j++;
+        }
+    }
+
+   
+    return S.empty();
+}
+
+int main() {
+    vector<int> A = {1, 2, 3, 4, 5};
+    vector<int> B = {4, 5, 3, 2, 1}; 
+
+    if (isStackPermutation(A, B))
+        cout << "Yes, B is a valid stack permutation of A\n";
+    else
+        cout << "No, B is not a valid stack permutation of A\n";
+
+    return 0;
+}
