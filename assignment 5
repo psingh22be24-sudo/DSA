@@ -1,49 +1,474 @@
-#include <iostream>
-using namespace std;
+#include <stdio.h>
+#include <stdlib.h>
 
-void sol(int arr[3][3]){
-    int sum = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        sum+=arr[0][i];
-    }
-    cout<<"Sum of row 1 is: "<<sum<<endl;
-    sum = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        sum+=arr[1][i];
-    }
-    cout<<"Sum of row 2 is: "<<sum<<endl;
-    sum = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        sum+=arr[2][i];
-    }
-    cout<<"Sum of row 3 is: "<<sum<<endl;
-    sum = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        sum+=arr[i][0];
-    }
-    cout<<"Sum of column 1 is: "<<sum<<endl;
-    sum = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        sum+=arr[i][1];
-    }
-    cout<<"Sum of column 2 is: "<<sum<<endl;
-    sum = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        sum+=arr[i][2];
-    }
-    cout<<"Sum of column 3 is: "<<sum<<endl;
-    sum = 0;
 
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+Node* head = NULL;
+
+Node* create_node(int value) {
+    Node *new_node = (Node*)malloc(sizeof(Node));
+    if (!new_node) {
+        printf("Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    new_node->data = value;
+    new_node->next = NULL;
+    return new_node;
 }
 
-int main(){
+void insert_at_begin(int value) {
+    Node *new_node = create_node(value);
+    new_node->next = head;
+    head = new_node;
+    printf("Inserted %d at the beginning.\n", value);
+}
 
-    int arr[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-    sol(arr);
+void insert_at_end(int value) {
+    Node *new_node = create_node(value);
+    if (head == NULL) {
+        head = new_node;
+    } else {
+        Node *temp = head;
+        while (temp->next != NULL) temp = temp->next;
+        temp->next = new_node;
+    }
+    printf("Inserted %d at the end.\n", value);
+}
+
+void insert_after_value(int target, int value) {
+    if (head == NULL) {
+        printf("List is empty. Can't insert after %d.\n", target);
+        return;
+    }
+    Node *temp = head;
+    while (temp != NULL && temp->data != target) temp = temp->next;
+    if (temp == NULL) {
+        printf("Value %d not found in the list.\n", target);
+    } else {
+        Node *new_node = create_node(value);
+        new_node->next = temp->next;
+        temp->next = new_node;
+        printf("Inserted %d after %d.\n", value, target);
+    }
+}
+
+void insert_before_value(int target, int value) {
+    if (head == NULL) {
+        printf("List is empty. Can't insert before %d.\n", target);
+        return;
+    }
+    
+    if (head->data == target) {
+        insert_at_begin(value);
+        return;
+    }
+    Node *prev = NULL;
+    Node *cur = head;
+    while (cur != NULL && cur->data != target) {
+        prev = cur;
+        cur = cur->next;
+    }
+    if (cur == NULL) {
+        printf("Value %d not found in the list.\n", target);
+    } else {
+        Node *new_node = create_node(value);
+        prev->next = new_node;
+        new_node->next = cur;
+        printf("Inserted %d before %d.\n", value, target);
+    }
+}
+
+void delete_from_begin() {
+    if (head == NULL) {
+        printf("List is empty. Nothing to delete.\n");
+        return;
+    }
+    Node *temp = head;
+    head = head->next;
+    printf("Deleted %d from the beginning.\n", temp->data);
+    free(temp);
+}
+
+void delete_from_end() {
+    if (head == NULL) {
+        printf("List is empty. Nothing to delete.\n");
+        return;
+    }
+    if (head->next == NULL) {
+        printf("Deleted %d from the end. (single node)\n", head->data);
+        free(head);
+        head = NULL;
+        return;
+    }
+    Node *prev = NULL;
+    Node *cur = head;
+    while (cur->next != NULL) {
+        prev = cur;
+        cur = cur->next;
+    }
+    prev->next = NULL;
+    printf("Deleted %d from the end.\n", cur->data);
+    free(cur);
+}
+
+void delete_value(int target) {
+    if (head == NULL) {
+        printf("List is empty. Nothing to delete.\n");
+        return;
+    }
+   
+    if (head->data == target) {
+        Node *temp = head;
+        head = head->next;
+        printf("Deleted node with value %d.\n", target);
+        free(temp);
+        return;
+    }
+    Node *prev = NULL;
+    Node *cur = head;
+    while (cur != NULL && cur->data != target) {
+        prev = cur;
+        cur = cur->next;
+    }
+    if (cur == NULL) {
+        printf("Value %d not found in the list.\n", target);
+    } else {
+        prev->next = cur->next;
+        printf("Deleted node with value %d.\n", target);
+        free(cur);
+    }
+}
+
+int search_value(int target) {
+    Node *cur = head;
+    int pos = 1;
+    while (cur != NULL) {
+        if (cur->data == target) return pos;
+        cur = cur->next;
+        pos++;
+    }
+    return -1; 
+}
+
+void display_list() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    Node *cur = head;
+    printf("List nodes: ");
+    while (cur != NULL) {
+        printf("%d", cur->data);
+        if (cur->next != NULL) printf(" -> ");
+        cur = cur->next;
+    }
+    printf("\n");
+}
+
+void show_menu() {
+    printf("\n--- Singly Linked List Menu ---\n");
+    printf("1. Insert at the beginning\n");
+    printf("2. Insert at the end\n");
+    printf("3. Insert before a value\n");
+    printf("4. Insert after a value\n");
+    printf("5. Delete from the beginning\n");
+    printf("6. Delete from the end\n");
+    printf("7. Delete a specific value\n");
+    printf("8. Search for a value\n");
+    printf("9. Display list\n");
+    printf("0. Exit\n");
+    printf("Enter your choice: ");
+}
+
+int main() {
+    int choice, value, target;
+
+    while (1) {
+        show_menu();
+        if (scanf("%d", &choice) != 1) {
+            
+            int ch;
+            while ((ch = getchar()) != '\n' && ch != EOF);
+            printf("Invalid input. Please enter a number.\n");
+            continue;
+        }
+        switch (choice) {
+            case 1:
+                printf("Enter value to insert at beginning: ");
+                scanf("%d", &value);
+                insert_at_begin(value);
+                break;
+            case 2:
+                printf("Enter value to insert at end: ");
+                scanf("%d", &value);
+                insert_at_end(value);
+                break;
+            case 3:
+                printf("Enter the target value to insert before: ");
+                scanf("%d", &target);
+                printf("Enter new value to insert before %d: ", target);
+                scanf("%d", &value);
+                insert_before_value(target, value);
+                break;
+            case 4:
+                printf("Enter the target value to insert after: ");
+                scanf("%d", &target);
+                printf("Enter new value to insert after %d: ", target);
+                scanf("%d", &value);
+                insert_after_value(target, value);
+                break;
+            case 5:
+                delete_from_begin();
+                break;
+            case 6:
+                delete_from_end();
+                break;
+            case 7:
+                printf("Enter the value to delete: ");
+                scanf("%d", &target);
+                delete_value(target);
+                break;
+            case 8: {
+                printf("Enter the value to search for: ");
+                scanf("%d", &target);
+                int pos = search_value(target);
+                if (pos == -1) printf("Value %d not found in the list.\n", target);
+                else printf("Value %d found at position %d (from head, 1-based).\n", target, pos);
+                break;
+            }
+            case 9:
+                display_list();
+                break;
+            case 0:
+                
+                while (head != NULL) delete_from_begin();
+                printf("Exiting. Goodbye!\n");
+                exit(EXIT_SUCCESS);
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    }
+    return 0;
+}
+
+
+
+
+question 2
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+Node* createNode(int val) {
+    Node *n = (Node*)malloc(sizeof(Node));
+    n->data = val;
+    n->next = NULL;
+    return n;
+}
+
+void insertEnd(Node **head, int val) {
+    Node *n = createNode(val);
+    if (*head == NULL) { *head = n; return; }
+    Node *t = *head;
+    while (t->next) t = t->next;
+    t->next = n;
+}
+
+int deleteKey(Node **head, int key) {
+    Node *cur = *head, *prev = NULL;
+    int count = 0;
+    while (cur) {
+        if (cur->data == key) {
+            count++;
+            if (prev == NULL) { 
+                *head = cur->next;
+                free(cur);
+                cur = *head;
+            } else {
+                prev->next = cur->next;
+                free(cur);
+                cur = prev->next;
+            }
+        } else {
+            prev = cur;
+            cur = cur->next;
+        }
+    }
+    return count;
+}
+
+void display(Node *head) {
+    if (!head) { printf("Empty List\n"); return; }
+    while (head) {
+        printf("%d", head->data);
+        if (head->next) printf("->");
+        head = head->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    Node *head = NULL;
+    int arr[] = {1,2,1,2,1,3,1}, n = 7, key = 1;
+    for (int i = 0; i < n; i++) insertEnd(&head, arr[i]);
+
+    printf("Original List: ");
+    display(head);
+
+    int count = deleteKey(&head, key);
+    printf("Count: %d\nUpdated Linked List: ", count);
+    display(head);
+
+    return 0;
+}
+ 
+question 3 
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+
+Node* createNode(int val) {
+    Node *n = (Node*)malloc(sizeof(Node));
+    n->data = val;
+    n->next = NULL;
+    return n;
+}
+
+
+void insertEnd(Node **head, int val) {
+    Node *n = createNode(val);
+    if (*head == NULL) {
+        *head = n;
+        return;
+    }
+    Node *t = *head;
+    while (t->next) t = t->next;
+    t->next = n;
+}
+
+
+void findMiddle(Node *head) {
+    if (head == NULL) {
+        printf("List is empty\n");
+        return;
+    }
+
+    Node *slow = head, *fast = head;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;          
+        fast = fast->next->next;    
+    }
+    printf("Middle element: %d\n", slow->data);
+}
+
+void display(Node *head) {
+    while (head) {
+        printf("%d", head->data);
+        if (head->next) printf("->");
+        head = head->next;
+    }
+    printf("\n");
+}
+
+
+int main() {
+    Node *head = NULL;
+    int arr[] = {1, 2, 3, 4, 5};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    for (int i = 0; i < n; i++)
+        insertEnd(&head, arr[i]);
+
+    printf("Linked List: ");
+    display(head);
+
+    findMiddle(head);
+
+    return 0;
+}
+
+question 4
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+
+Node* createNode(int val) {
+    Node *n = (Node*)malloc(sizeof(Node));
+    n->data = val;
+    n->next = NULL;
+    return n;
+}
+
+
+void insertEnd(Node **head, int val) {
+    Node *n = createNode(val);
+    if (*head == NULL) {
+        *head = n;
+        return;
+    }
+    Node *t = *head;
+    while (t->next) t = t->next;
+    t->next = n;
+}
+
+
+void reverseList(Node **head) {
+    Node *prev = NULL, *cur = *head, *next = NULL;
+    while (cur != NULL) {
+        next = cur->next;   
+        cur->next = prev;   
+        prev = cur;         
+        cur = next;         
+    }
+    *head = prev;
+}
+
+
+void display(Node *head) {
+    while (head) {
+        printf("%d->", head->data);
+        head = head->next;
+    }
+    printf("NULL\n");
+}
+
+
+int main() {
+    Node *head = NULL;
+    int arr[] = {1, 2, 3, 4};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    for (int i = 0; i < n; i++)
+        insertEnd(&head, arr[i]);
+
+    printf("Original List: ");
+    display(head);
+
+    reverseList(&head);
+
+    printf("Reversed List: ");
+    display(head);
+
+    return 0;
 }

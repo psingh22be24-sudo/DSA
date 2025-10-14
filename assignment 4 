@@ -1,0 +1,281 @@
+question 1 
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+struct CircularQueue {
+    vector<int> a; int front=0, sz=0;
+    CircularQueue(int cap=10){ a.resize(cap); }
+    bool isEmpty() const { return sz==0; }
+    bool isFull() const { return sz==(int)a.size(); }
+    bool enqueue(int x){ if(isFull()) return false; a[(front+sz)%a.size()]=x; ++sz; return true; }
+    bool dequeue(int &x){ if(isEmpty()) return false; x=a[front]; front=(front+1)%a.size(); --sz; return true; }
+    bool peek(int &x) const { if(isEmpty()) return false; x=a[front]; return true; }
+    void display() const {
+        if(isEmpty()){ cout<<"Queue empty\n"; return; }
+        for(int i=0;i<sz;++i){ if(i) cout<<" -> "; cout<<a[(front+i)%a.size()]; } cout<<"\n";
+    }
+};
+
+int main(){
+    int cap; cout<<"Capacity: "; if(!(cin>>cap) || cap<=0) return 0;
+    CircularQueue q(cap);
+    for(;;){
+        cout<<"\n1:enqueue 2:dequeue 3:isEmpty 4:isFull 5:peek 6:display 0:exit\n> ";
+        int ch; if(!(cin>>ch)) break;
+        if(ch==0) break;
+        int x;
+        switch(ch){
+            case 1: cout<<"val: "; cin>>x; cout<<(q.enqueue(x)? "enqueued\n":"full\n"); break;
+            case 2: cout<<(q.dequeue(x)? (cout<<"dequeued: "<<x<<"\n", true):(cout<<"empty\n",false)); break;
+            case 3: cout<<(q.isEmpty()? "empty\n":"not empty\n"); break;
+            case 4: cout<<(q.isFull()? "full\n":"not full\n"); break;
+            case 5: cout<<(q.peek(x)? (cout<<"front: "<<x<<"\n", true):(cout<<"empty\n",false)); break;
+            case 6: q.display(); break;
+            default: cout<<"invalid\n";
+        }
+    }
+    return 0;
+}
+
+
+question 2 
+
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class CircularQueue {
+    vector<int> buf;
+    int frontIdx = 0;
+    int size_ = 0;
+public:
+    CircularQueue(int capacity = 10) : buf(capacity) {}
+
+    bool isEmpty() const { return size_ == 0; }
+    bool isFull()  const { return size_ == (int)buf.size(); }
+
+    bool enqueue(int x) {
+        if (isFull()) return false;
+        int pos = (frontIdx + size_) % buf.size();
+        buf[pos] = x;
+        ++size_;
+        return true;
+    }
+
+    bool dequeue(int &out) {
+        if (isEmpty()) return false;
+        out = buf[frontIdx];
+        frontIdx = (frontIdx + 1) % buf.size();
+        --size_;
+        return true;
+    }
+
+    bool peek(int &out) const {
+        if (isEmpty()) return false;
+        out = buf[frontIdx];
+        return true;
+    }
+
+    void display() const {
+        if (isEmpty()) { cout << "Queue is empty\n"; return; }
+        cout << "Front -> ";
+        for (int i = 0; i < size_; ++i) {
+            if (i) cout << " -> ";
+            cout << buf[(frontIdx + i) % buf.size()];
+        }
+        cout << " <- Rear\n";
+    }
+};
+
+int main() {
+    int cap;
+    cout << "Enter queue capacity: ";
+    if (!(cin >> cap) || cap <= 0) return 0;
+
+    CircularQueue q(cap);
+    while (true) {
+        cout << "\nMenu:\n"
+             << "1. enqueue()\n"
+             << "2. dequeue()\n"
+             << "3. isEmpty()\n"
+             << "4. isFull()\n"
+             << "5. peek()\n"
+             << "6. display()\n"
+             << "0. exit\n"
+             << "Choice: ";
+
+        int choice; if (!(cin >> choice)) break;
+        if (choice == 0) break;
+
+        int x;
+        switch (choice) {
+            case 1:
+                cout << "Value to enqueue: ";
+                if (!(cin >> x)) { cout << "Invalid input\n"; cin.clear(); cin.ignore(1e9,'\n'); break; }
+                cout << (q.enqueue(x) ? "Enqueued\n" : "Queue is full\n");
+                break;
+            case 2:
+                if (q.dequeue(x)) cout << "Dequeued: " << x << '\n';
+                else cout << "Queue is empty\n";
+                break;
+            case 3:
+                cout << (q.isEmpty() ? "Queue is empty\n" : "Queue is not empty\n");
+                break;
+            case 4:
+                cout << (q.isFull() ? "Queue is full\n" : "Queue is not full\n");
+                break;
+            case 5:
+                if (q.peek(x)) cout << "Front element: " << x << '\n';
+                else cout << "Queue is empty\n";
+                break;
+            case 6:
+                q.display();
+                break;
+            default:
+                cout << "Invalid choice\n";
+        }
+    }
+
+    cout << "Exiting.\n";
+    return 0;
+}
+
+
+
+question 3
+
+
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    
+    string line;
+    if (!getline(cin, line) || line.empty()) return 0;
+
+    istringstream iss(line);
+    vector<int> a;
+    int v;
+    while (iss >> v) a.push_back(v);
+
+    int n = (int)a.size();
+    if (n <= 1) { 
+        for (int x : a) cout << x << ' ';
+        cout << '\n';
+        return 0;
+    }
+
+    int half = n / 2;               
+    queue<int> q1, q2;
+    for (int i = 0; i < half; ++i) q1.push(a[i]);
+    for (int i = half; i < n; ++i) q2.push(a[i]);
+
+    
+    bool firstTurn = true;
+    vector<int> out;
+    while (!q1.empty() && !q2.empty()) {
+        out.push_back(q1.front()); q1.pop();
+        out.push_back(q2.front()); q2.pop();
+    }
+    
+    while (!q2.empty()) { out.push_back(q2.front()); q2.pop(); }
+    while (!q1.empty()) { out.push_back(q1.front()); q1.pop(); }
+
+    
+    for (size_t i = 0; i < out.size(); ++i) {
+        if (i) cout << ' ';
+        cout << out[i];
+    }
+    cout << '\n';
+    return 0;
+}
+
+
+question 4 
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    vector<int> freq(256, 0);
+    queue<char> q;
+    string token;
+
+    
+    while (cin >> token) {
+        char ch = token[0];
+        ++freq[(unsigned char)ch];
+        q.push(ch);
+
+       
+        while (!q.empty() && freq[(unsigned char)q.front()] > 1) q.pop();
+
+        if (q.empty()) cout << "-1";
+        else cout << q.front();
+
+       
+        if (!cin.eof()) cout << ' ';
+    }
+    cout << '\n';
+    return 0;
+}
+
+
+question 5
+
+a part
+
+#include <bits/stdc++.h>
+using namespace std;
+
+class StackTwoQueues {
+    queue<int> q1, q2; 
+public:
+    void push(int x) {
+        q2.push(x);
+        while (!q1.empty()) { q2.push(q1.front()); q1.pop(); }
+        swap(q1, q2);
+    }
+    void pop() {
+        if (!q1.empty()) q1.pop();
+    }
+    int top() const {
+        if (q1.empty()) throw runtime_error("stack empty");
+        return q1.front();
+    }
+    bool empty() const { return q1.empty(); }
+};
+
+b part
+class StackOneQueue {
+    queue<int> q;
+public:
+    void push(int x) {
+        q.push(x);
+        int sz = q.size();     
+        for (int i = 0; i < sz - 1; ++i) {
+            q.push(q.front());
+            q.pop();
+        }
+    }
+    void pop() {
+        if (!q.empty()) q.pop();
+    }
+    int top() const {
+        if (q.empty()) throw runtime_error("stack empty");
+        return q.front();
+    }
+    bool empty() const { return q.empty(); }
+};

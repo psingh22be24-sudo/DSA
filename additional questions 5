@@ -1,0 +1,419 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+Node* newNode(int v){
+    Node* n = malloc(sizeof(Node)); n->data = v; n->next = NULL; return n;
+}
+
+Node* getIntersection(Node* headA, Node* headB){
+    if (!headA || !headB) return NULL;
+    Node *a = headA, *b = headB;
+    while (a != b) {
+        a = a ? a->next : headB;
+        b = b ? b->next : headA;
+    }
+    return a; 
+}
+
+
+void printList(Node* h){
+    while(h){ printf("%d", h->data); if(h->next) printf("->"); h=h->next; }
+    printf("\n");
+}
+
+int main(void){
+   
+    Node *headA = newNode(1);
+    headA->next = newNode(2);
+    headA->next->next = newNode(3);
+
+    Node *headB = newNode(4);
+    headB->next = newNode(5);
+    headB->next->next = newNode(6);
+
+    
+    Node *shared = newNode(8);
+    shared->next = newNode(9);
+
+    
+    headA->next->next->next = shared;   
+    headB->next->next->next = shared;   
+
+    printf("List A: "); printList(headA);
+    printf("List B: "); printList(headB);
+
+    Node *intr = getIntersection(headA, headB);
+    if (intr) printf("Intersection at node with value: %d\n", intr->data);
+    else     printf("No intersection (NULL)\n");
+
+    return 0;
+}
+
+question 2 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+
+Node* createNode(int val) {
+    Node *n = (Node*)malloc(sizeof(Node));
+    n->data = val;
+    n->next = NULL;
+    return n;
+}
+
+
+void insertEnd(Node **head, int val) {
+    Node *n = createNode(val);
+    if (*head == NULL) {
+        *head = n;
+        return;
+    }
+    Node *t = *head;
+    while (t->next) t = t->next;
+    t->next = n;
+}
+
+
+Node* reverseKGroup(Node *head, int k) {
+    Node *cur = head, *prev = NULL, *next = NULL;
+    int count = 0;
+
+    
+    Node *temp = head;
+    for (int i = 0; i < k; i++) {
+        if (!temp) return head; 
+        temp = temp->next;
+    }
+
+   
+    while (cur && count < k) {
+        next = cur->next;
+        cur->next = prev;
+        prev = cur;
+        cur = next;
+        count++;
+    }
+
+    
+    if (next)
+        head->next = reverseKGroup(next, k);
+
+    return prev; 
+}
+
+
+void display(Node *head) {
+    while (head) {
+        printf("%d->", head->data);
+        head = head->next;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    Node *head = NULL;
+    int arr[] = {1, 2, 3, 4, 5, 6, 7, 8};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int k = 3;
+
+    for (int i = 0; i < n; i++)
+        insertEnd(&head, arr[i]);
+
+    printf("Original List: ");
+    display(head);
+
+    head = reverseKGroup(head, k);
+
+    printf("Reversed in groups of %d: ", k);
+    display(head);
+
+    return 0;
+}
+ 
+question 3 
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+Node* newNode(int v){
+    Node* n = (Node*)malloc(sizeof(Node));
+    n->data = v; n->next = NULL; return n;
+}
+
+
+int removeLoop(Node *head) {
+    if (!head || !head->next) return 0;
+
+    Node *slow = head, *fast = head;
+
+    
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (slow == fast) break;
+    }
+    if (slow != fast) return 0; 
+
+    
+    slow = head;
+    
+    if (slow == fast) {
+        while (fast->next != slow) fast = fast->next;
+        fast->next = NULL;
+        return 1;
+    }
+
+    
+    while (slow->next != fast->next) {
+        slow = slow->next;
+        fast = fast->next;
+    }
+    
+    fast->next = NULL;
+    return 1;
+}
+
+
+void printList(Node *head) {
+    Node *t = head;
+    while (t) {
+        printf("%d", t->data);
+        if (t->next) printf("->");
+        t = t->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    
+    Node *head = newNode(1);
+    head->next = newNode(2);
+    head->next->next = newNode(3);
+    head->next->next->next = newNode(4);
+    head->next->next->next->next = newNode(5);
+
+    
+    Node *node5 = head->next->next->next->next;
+    Node *node3 = head->next->next;
+    node5->next = node3;
+
+    
+    int removed = removeLoop(head);
+    if (removed) {
+        printf("Loop detected and removed.\n");
+        printf("List after removal: ");
+        printList(head);
+    } else {
+        printf("No loop found.\n");
+        printf("List: ");
+        printList(head);
+    }
+
+    return 0;
+}
+
+question 4 
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+ListNode* build(const vector<int>& a) {
+    ListNode *head = nullptr, *tail = nullptr;
+    for (int x : a) {
+        ListNode *n = new ListNode(x);
+        if (!head) head = tail = n;
+        else { tail->next = n; tail = n; }
+    }
+    return head;
+}
+
+void printList(ListNode *h) {
+    if (!h) { cout << "Empty\n"; return; }
+    while (h) {
+        cout << h->val;
+        if (h->next) cout << "->";
+        h = h->next;
+    }
+    cout << '\n';
+}
+
+ListNode* rotateLeft(ListNode* head, int k) {
+    if (!head || !head->next || k <= 0) return head;
+
+   
+    ListNode *tail = head;
+    int n = 1;
+    while (tail->next) { tail = tail->next; ++n; }
+
+    k %= n;
+    if (k == 0) return head;
+
+    
+    tail->next = head;
+
+    
+    ListNode *newTail = head;
+    for (int i = 1; i < k; ++i) newTail = newTail->next;
+
+    ListNode *newHead = newTail->next;
+    newTail->next = nullptr; 
+
+    return newHead;
+}
+
+void freeList(ListNode *h) {
+    while (h) {
+        ListNode *t = h->next;
+        delete h;
+        h = t;
+    }
+}
+
+int main() {
+    vector<int> arr = {1,2,3,4,5};
+    ListNode *head = build(arr);
+
+    cout << "Original: ";
+    printList(head);
+
+    int k = 2;
+    head = rotateLeft(head, k);
+
+    cout << "After left-rotate by " << k << ": ";
+    printList(head);
+
+    freeList(head);
+    return 0;
+}
+
+question 5 
+
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    int coeff;
+    int pow;
+    Node *next;
+    Node(int c, int p): coeff(c), pow(p), next(nullptr) {}
+};
+
+
+void appendTerm(Node*& tail, int coeff, int pow) {
+    if (coeff == 0) return;
+    tail->next = new Node(coeff, pow);
+    tail = tail->next;
+}
+
+
+Node* addSorted(Node* a, Node* b) {
+    Node dummy(0, 0);
+    Node* tail = &dummy;
+    while (a && b) {
+        if (a->pow == b->pow) {
+            int s = a->coeff + b->coeff;
+            appendTerm(tail, s, a->pow);
+            a = a->next; b = b->next;
+        } else if (a->pow > b->pow) {
+            appendTerm(tail, a->coeff, a->pow);
+            a = a->next;
+        } else {
+            appendTerm(tail, b->coeff, b->pow);
+            b = b->next;
+        }
+    }
+    while (a) { appendTerm(tail, a->coeff, a->pow); a = a->next; }
+    while (b) { appendTerm(tail, b->coeff, b->pow); b = b->next; }
+    return dummy.next;
+}
+
+
+Node* addUnsorted(Node* a, Node* b) {
+    unordered_map<int,int> M; // power -> coeff
+    for (Node* p = a; p; p = p->next) M[p->pow] += p->coeff;
+    for (Node* p = b; p; p = p->next) M[p->pow] += p->coeff;
+
+    
+    vector<int> powers;
+    powers.reserve(M.size());
+    for (auto &kv : M) if (kv.second != 0) powers.push_back(kv.first);
+    sort(powers.rbegin(), powers.rend());
+
+    Node dummy(0,0); Node* tail = &dummy;
+    for (int pow : powers) appendTerm(tail, M[pow], pow);
+    return dummy.next;
+}
+
+
+Node* build(const vector<pair<int,int>>& terms) {
+    Node *head = nullptr, *tail = nullptr;
+    for (auto &t : terms) {
+        Node* n = new Node(t.first, t.second);
+        if (!head) head = tail = n; else { tail->next = n; tail = n; }
+    }
+    return head;
+}
+void printPoly(Node* h) {
+    if (!h) { cout << "0\n"; return; }
+    bool first = true;
+    while (h) {
+        if (!first && h->coeff > 0) cout << "+";
+        if (h->pow == 0) cout << h->coeff;
+        else if (h->pow == 1) cout << h->coeff << "x";
+        else cout << h->coeff << "x^" << h->pow;
+        first = false;
+        h = h->next;
+    }
+    cout << "\n";
+}
+void freeList(Node* h) { while (h) { Node* t = h->next; delete h; h = t; } }
+
+int main() {
+    
+    Node* A = build({{5,3}, {4,2}, {2,1}, {1,0}});
+    Node* B = build({{3,3}, {-4,2}, {6,0}});
+
+    cout << "A: "; printPoly(A);
+    cout << "B: "; printPoly(B);
+
+    Node* sumSorted = addSorted(A, B);
+    cout << "Sum (sorted-merge): ";
+    printPoly(sumSorted);
+
+    
+    Node* C = build({{2,1}, {1,0}, {5,3}, {4,2}}); // same as A but unsorted
+    Node* D = build({{6,0}, {3,3}, {-4,2}});       // same as B but unsorted
+
+    Node* sumUnsorted = addUnsorted(C, D);
+    cout << "Sum (unsorted-aggregate): ";
+    printPoly(sumUnsorted);
+
+    freeList(A); freeList(B); freeList(C); freeList(D);
+    freeList(sumSorted); freeList(sumUnsorted);
+    return 0;
+}
