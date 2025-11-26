@@ -1,0 +1,135 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <queue>
+using namespace std;
+
+// -------------------------------------------------------
+// Disjoint Set (Union-Find) for Kruskal
+// -------------------------------------------------------
+class DisjointSet {
+    vector<int> parent, rank;
+
+public:
+    DisjointSet(int n) {
+        parent.resize(n);
+        rank.resize(n, 0);
+        for (int i = 0; i < n; i++)
+            parent[i] = i;
+    }
+
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);
+        return parent[x];
+    }
+
+    void unionSet(int x, int y) {
+        int xr = find(x);
+        int yr = find(y);
+
+        if (xr == yr) return;
+
+        if (rank[xr] < rank[yr])
+            parent[xr] = yr;
+        else if (rank[xr] > rank[yr])
+            parent[yr] = xr;
+        else {
+            parent[yr] = xr;
+            rank[xr]++;
+        }
+    }
+};
+
+// -------------------------------------------------------
+// Edge structure for Kruskal
+// -------------------------------------------------------
+struct Edge {
+    int u, v, w;
+};
+
+bool cmp(Edge a, Edge b) {
+    return a.w < b.w;
+}
+
+// -------------------------------------------------------
+// Kruskal's MST
+// -------------------------------------------------------
+void kruskalMST(int V, vector<Edge> &edges) {
+    sort(edges.begin(), edges.end(), cmp);
+
+    DisjointSet ds(V);
+    int totalCost = 0;
+
+    cout << "\nKruskal's MST:\n";
+
+    for (auto &e : edges) {
+        if (ds.find(e.u) != ds.find(e.v)) {
+            ds.unionSet(e.u, e.v);
+            cout << e.u << " -- " << e.v << " : " << e.w << endl;
+            totalCost += e.w;
+        }
+    }
+
+    cout << "Total Weight = " << totalCost << endl;
+}
+
+// -------------------------------------------------------
+// Prim's MST
+// -------------------------------------------------------
+void primMST(int V, vector<vector<pair<int,int>>> &graph) {
+    vector<bool> visited(V, false);
+    priority_queue< pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>> > pq;
+
+    int totalCost = 0;
+    pq.push({0, 0});  // (weight, vertex)
+
+    cout << "\nPrim's MST:\n";
+
+    while (!pq.empty()) {
+        auto [w, u] = pq.top();
+        pq.pop();
+
+        if (visited[u]) continue;
+        visited[u] = true;
+        totalCost += w;
+
+        if (w != 0)  // skip printing the first 0-weight starting edge
+            cout << "Pick edge with weight: " << w << " at node " << u << endl;
+
+        for (auto &p : graph[u]) {
+            int v = p.first;
+            int wt = p.second;
+            if (!visited[v])
+                pq.push({wt, v});
+        }
+    }
+
+    cout << "Total Weight = " << totalCost << endl;
+}
+
+// -------------------------------------------------------
+// MAIN FUNCTION
+// -------------------------------------------------------
+int main() {
+
+    int V = 5; // number of vertices
+    vector<Edge> edges = {
+        {0, 1, 2}, {0, 3, 6},
+        {1, 2, 3}, {1, 3, 8}, {1, 4, 5},
+        {2, 4, 7},
+        {3, 4, 9}
+    };
+
+    // Build graph for Prim
+    vector<vector<pair<int,int>>> graph(V);
+    for (auto &e : edges) {
+        graph[e.u].push_back({e.v, e.w});
+        graph[e.v].push_back({e.u, e.w});
+    }
+
+    kruskalMST(V, edges);
+    primMST(V, graph);
+
+    return 0;
+}
